@@ -5,6 +5,7 @@ const multer = require('multer');
 const upFile = require('./models/file');
 require('dotenv').config();
 require('./models/file');
+const fs = require('fs')
 const upload = multer({dest: './uploads'})
 
 mongoose.connect(process.env.DB_URI, {
@@ -27,6 +28,15 @@ app.use('/public', express.static(process.cwd() + '/public'));
 app.get('/', function (req, res) {
     res.sendFile(process.cwd() + '/views/index.html');
 });
+
+app.get('/uploads', (req, res) => {
+  fs.readdir(process.cwd() + '/uploads', (err, files) => {
+    for (let i = 0; i < files.length; i++) {
+      console.log("entry:" + files[i])
+    }
+  })
+  res.end()
+})
 
 app.post('/api/fileanalyse', upload.single('upfile'), async (req, res) => {
   const file = new upFile(req.file);
