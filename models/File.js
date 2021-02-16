@@ -10,6 +10,6 @@ const fileSchema = new Schema({
   size: Number
 })
 
-const upFile = mongoose.model('File', fileSchema);
+const File = mongoose.model('File', fileSchema);
 
-module.exports = upFile
+module.exports = File
