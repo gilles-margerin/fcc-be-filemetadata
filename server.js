@@ -5,9 +5,8 @@ const dayjs = require('dayjs')
 const express = require('express');
 const mongoose = require('mongoose')
 const multer = require('multer');
-const File = require('./models/File');
+const fileUpload = require('./controllers/fileUpload');
 require('dotenv').config();
-require('./models/File');
 
 mongoose.connect(process.env.DB_URI, {
   useNewUrlParser: true,
@@ -39,31 +38,7 @@ app.get('/', function (req, res) {
     res.sendFile(process.cwd() + '/views/index.html');
 });
 
-app.get('/uploads', (req, res) => {
-  fs.readdir(process.cwd() + '/uploads', (err, files) => {
-    for (const file of files) {
-      console.log("entry:" + file)
-    }
-  })
-  res.end()
-})
-
-app.post('/api/fileanalyse', upload.single('upfile'), async (req, res) => {
-  const file = await new File({
-    originalname: req.file.originalname,
-    encoding: req.file.encoding,
-    mimetype: req.file.mimetype,
-    filename: res.req.file.filename,
-    path: req.file.path,
-    size: req.file.size
-  }).save()
-  
-  res.json({
-    "name": file.originalname,
-    "type": file.mimetype,
-    "size": file.size
-  })
-})
+app.post('/api/fileanalyse', upload.single('upfile'), fileUpload)
 
 const port = process.env.PORT || 3000;
 app.listen(port, function () {
