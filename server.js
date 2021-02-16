@@ -54,6 +54,7 @@ app.post('/api/fileanalyse', upload.single('upfile'), async (req, res) => {
     encoding: req.file.encoding,
     mimetype: req.file.mimetype,
     filename: res.req.file.filename,
+    path: req.file.path,
     size: req.file.size
   }).save()
   
