@@ -6,6 +6,7 @@ const fileSchema = new Schema({
   encoding: String,
   mimetype: String,
   filename: String,
+  path: String,
   size: Number
 })
 
