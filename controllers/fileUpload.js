@@ -1,23 +1,31 @@
 const File = require("../models/File")
 
 const fileUpload = async (req, res) => {
-  try {
-    const file = await new File({
-      originalname: req.file.originalname,
-      encoding: req.file.encoding,
-      mimetype: req.file.mimetype,
-      filename: res.req.file.filename,
-      path: req.file.path,
-      size: req.file.size
-    }).save()
+  try {    
+    const filesData = []
+
+    for (const file of req.files) {
+        const savedFile = await new File({
+        originalname: file.originalname,
+        encoding: file.encoding,
+        mimetype: file.mimetype,
+        filename: file.filename,
+        path: file.path,
+        size: file.size
+      }).save()
+
+      filesData.push({
+        name: savedFile.originalname,
+        type: savedFile.mimetype,
+        size: savedFile.size
+      })
+    }
     
     res.json({
-      "name": file.originalname,
-      "type": file.mimetype,
-      "size": file.size
+      "uploaded files": filesData
     })
   } catch (err) {
-    res.sendStatus(500)
+    res.status(500).send(`error: ${err.name}`)
   }
 }
 

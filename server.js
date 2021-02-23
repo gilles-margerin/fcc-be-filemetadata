@@ -1,10 +1,8 @@
-const path = require('path')
 const cors = require('cors');
-const dayjs = require('dayjs')
 const express = require('express');
 const mongoose = require('mongoose')
-const multer = require('multer');
 const fileUpload = require('./controllers/fileUpload');
+const multerUpload = require('./controllers/multerUpload')
 require('dotenv').config();
 
 mongoose.connect(process.env.DB_URI, {
@@ -20,26 +18,21 @@ connection.once("open", () => {
 });
 
 const app = express();
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, './uploads/')
-  },
-  filename: function(req, file, cb) {
-    cb(null, dayjs().toString() + path.extname(file.originalname))
-  }
-})
-const upload = multer({storage: storage})
+
+app.set('view engine', 'ejs')
 
 app.use(cors());
 app.use('/public', express.static(process.cwd() + '/public'));
 
-app.get('/', function (req, res) {
-    res.sendFile(process.cwd() + '/views/index.html');
-});
+app.get('/', (req, res) => res.render('index'));
+app.get('/api/download', (req, res) => res.render('download'))
 
-app.post('/api/fileanalyse', upload.single('upfile'), fileUpload)
+app.post('/api/fileanalyse', multerUpload.array('upfile'), fileUpload)
+
+app.use((req, res) => res.status(404).render('404'))
 
 const port = process.env.PORT || 3000;
 app.listen(port, function () {
   console.log('Your app is listening on port ' + port)
 });
+
