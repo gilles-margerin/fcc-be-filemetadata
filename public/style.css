@@ -6,6 +6,7 @@ body {
   color: #222;
   background-color: #ECF0F1;
   text-align: center;
+  overflow-x: hidden;
 }
 
 .container {
@@ -39,4 +40,17 @@ input#button {
   padding: 20px;
   width: 60%;
   min-width: 400px;
+}
+
+.file-container {
+  display: flex;
+  margin: 0 auto;
+  justify-content: flex-start;
+  align-items: center;
+  width: 500px;
+}
+
+.file-container p {
+  max-width: 300px;
+  margin-right: 10px;
 }

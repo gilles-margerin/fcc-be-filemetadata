@@ -14,7 +14,7 @@ mongoose.connect(process.env.DB_URI, {
 let gfs;
 
 const connection = mongoose.connection;
-connection.on('error', console.error.bind(console, 'connection error'))
+connection.on('error', () => console.error(console, 'connection error'))
 connection.once("open", () => {
   gfs = new mongoose.mongo.GridFSBucket(connection.db, {
     bucketName: "uploads"
@@ -31,22 +31,28 @@ app.use(cors());
 app.use('/public', express.static(process.cwd() + '/public'));
 
 app.get('/', (req, res) => res.render('index'));
-app.get('/api/download', (req, res) => res.render('download'))
-app.get('/api/test', (req, res) => {
-  gfs.find().toArray((err, files) => {
+app.get('/api/download', async (req, res) => {
+  await gfs.find().toArray((err, files) => {
     if (!files || files.lenght === 0) {
       res.status(200).json({
         success: false,
         message: 'No files available'
       })
     }
-    console.log(files.path)
+    
     files.map(file => {
       console.log(file)
     })
+    
+    res.render('download', {files: files})
   })
-  res.end()
 })
+app.get('/api/download/:filename?', (req, res) => {
+  const filename = req.params.filename
+
+  res.send(filename);
+})
+
 
 app.post('/api/fileanalyse', multerGridFsUpload.array('upfile'), fileUpload)
 
