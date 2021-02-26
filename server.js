@@ -1,6 +1,9 @@
 const cors = require('cors');
 const express = require('express');
+const fs = require('fs')
 const mongoose = require('mongoose')
+const path = require('path')
+const tempy = require('tempy')
 const fileUpload = require('./controllers/fileUpload');
 const multerGridFsUpload = require('./controllers/multerGridFsUpload')
 require('dotenv').config();
@@ -47,11 +50,20 @@ app.get('/api/download', async (req, res) => {
     res.render('download', {files: files})
   })
 })
-app.get('/api/download/:filename?', (req, res) => {
-  const filename = req.params.filename
+app.get('/api/download/:filename?', async (req, res) => {
+  const tempFile = tempy.file();
 
-  res.send(filename);
-})
+  gfs.openDownloadStreamByName(req.params.filename)
+    .pipe(fs.createWriteStream(tempFile))
+    .on('error', (err) => {
+      console.error(err)
+      res.send('error: ', err)
+    })
+    .on('finish', () => {
+      console.log('download finshed');
+      res.download(tempFile, req.params.filename.slice(30).replace(/--/g, ''))
+    })
+});
 
 
 app.post('/api/fileanalyse', multerGridFsUpload.array('upfile'), fileUpload)

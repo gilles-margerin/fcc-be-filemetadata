@@ -14,7 +14,7 @@
         <% if (files) { %>
           <% files.forEach(file => { %>
             <div class="file-container">
-              <p><%= file.filename.slice(29).replace(/--/g, '') %></p>    
+              <p><%= file.filename.slice(30).replace(/--/g, '') %></p>    
               <a href="/api/download/<%= file.filename %>" >Download file</a>
             </div>
           <% }) %>

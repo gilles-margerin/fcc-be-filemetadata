@@ -8,7 +8,7 @@ const storage = new GridFsStorage({
   file: (req, file) => {
     return {
       bucketName: 'uploads',
-      filename: dayjs().toString() + `--${file.originalname}--` 
+      filename: dayjs().toString() + '---' + file.originalname,
     }
   }
 })
