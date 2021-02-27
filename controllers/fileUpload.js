@@ -21,11 +21,9 @@ const fileUpload = async (req, res) => {
       })
     }
     
-    res.json({
-      "uploaded files": filesData
-    })
+    res.render('upload-confirm', {filesData: filesData})
   } catch (err) {
-    res.status(500).send(`error: ${err.name}`)
+    res.status(500).send(`Error: ${err.name}`)
   }
 }
 
