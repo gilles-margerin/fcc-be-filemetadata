@@ -37,8 +37,8 @@ app.get('/', (req, res) => res.render('index'));
 app.get('/api/download', async (req, res) => {
   try {
     await gfs.find().toArray((err, files) => {
-    if (!files || files.lenght === 0) {
-      res.status(200).send('No files available')
+    if (!files || files.length === 0) {
+      res.status(404).send('No files available')
       return
     }
     
@@ -54,10 +54,11 @@ app.get('/api/download/:filename?', async (req, res) => {
   try {
     const tempFile = tempy.file();
 
-    await gfs.openDownloadStreamByName(req.params.filename)
-    .pipe(fs.createWriteStream(tempFile))
+    const data = await gfs.openDownloadStreamByName(req.params.filename)
+    data.pipe(fs.createWriteStream(tempFile))
     .on('finish', () => {
       console.log('Download finshed');
+      console.log(data)
       res.download(tempFile, req.params.filename.slice(30).replace(/--/g, ''))
     })
   } catch (err) {
