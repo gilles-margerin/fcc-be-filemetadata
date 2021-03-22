@@ -1,8 +1,8 @@
 const cors = require('cors');
 const express = require('express');
-const fs = require('fs')
-const mongoose = require('mongoose')
-const tempy = require('tempy')
+const mongoose = require('mongoose');
+const filesDisplay = require('./controllers/filesDisplay');
+const fileDownload = require('./controllers/fileDownload');
 const fileUpload = require('./controllers/fileUpload');
 const multerGridFsUpload = require('./controllers/multerGridFsUpload')
 require('dotenv').config();
@@ -12,6 +12,8 @@ mongoose.connect(process.env.DB_URI, {
   useUnifiedTopology: true,
   retryWrites: true,
 })
+
+const app = express();
 
 let gfs;
 
@@ -23,9 +25,10 @@ connection.once("open", () => {
   gfs = new mongoose.mongo.GridFSBucket(connection.db, {
     bucketName: "uploads"
   })
+
+  app.locals.gfs = gfs
 });
 
-const app = express();
 
 app.set('view engine', 'ejs')
 
@@ -33,39 +36,8 @@ app.use(cors());
 app.use('/public', express.static(process.cwd() + '/public'));
 
 app.get('/', (req, res) => res.render('index'));
-
-app.get('/api/download', async (req, res) => {
-  try {
-    await gfs.find().toArray((err, files) => {
-    if (!files || files.length === 0) {
-      res.status(404).send('No files available')
-      return
-    }
-    
-    res.render('download', {files: files})
-  })
-  } catch (err) {
-    console.log(err)
-    res.status(500).send('Internal server error')
-  }
-})
-
-app.get('/api/download/:filename?', async (req, res) => {
-  try {
-    const tempFile = tempy.file();
-
-    await gfs.openDownloadStreamByName(req.params.filename)
-    .pipe(fs.createWriteStream(tempFile))
-    .on('finish', () => {
-      console.log('Download finshed');
-      res.download(tempFile, req.params.filename.slice(30).replace(/--/g, ''))
-    })
-  } catch (err) {
-    console.log(err)
-    res.status(500).send(`Error while downloading file : ${err.name}` )
-  }
-});
-
+app.get('/api/download', filesDisplay)
+app.get('/api/download/:filename?', fileDownload);
 app.post('/api/fileanalyse', multerGridFsUpload.array('upfile'), fileUpload)
 
 app.use((req, res) => res.status(404).render('404'))
