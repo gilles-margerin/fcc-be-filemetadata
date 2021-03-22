@@ -54,11 +54,10 @@ app.get('/api/download/:filename?', async (req, res) => {
   try {
     const tempFile = tempy.file();
 
-    const data = await gfs.openDownloadStreamByName(req.params.filename)
-    data.pipe(fs.createWriteStream(tempFile))
+    await gfs.openDownloadStreamByName(req.params.filename)
+    .pipe(fs.createWriteStream(tempFile))
     .on('finish', () => {
       console.log('Download finshed');
-      console.log(data)
       res.download(tempFile, req.params.filename.slice(30).replace(/--/g, ''))
     })
   } catch (err) {
